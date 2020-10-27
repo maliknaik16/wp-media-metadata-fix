@@ -128,7 +128,11 @@ class WPMediaMetadataFix {
 
         if ( isset( $_GET['wpmmf_attachment_id'] ) ) {
             // Get the attachement id from the query string.
-            $attachment_id = $_GET['wpmmf_attachment_id'];
+            $filtered_attachment_id = filter_input(INPUT_GET, 'wpmmf_attachment_id', FILTER_VALIDATE_INT); // $_GET['wpmmf_attachment_id'];
+
+            if ( $filtered_attachment_id !== false ) {
+                $attachment_id = $filtered_attachment_id;
+            }
         }
 
         if ( isset( $_GET['wpmmf_nonce'] ) ) {
@@ -318,17 +322,17 @@ class WPMediaMetadataFix {
 
         $output .= sprintf("<p>%s</p>", $msg);
 
-        $paged = isset( $_GET['paged'] ) ? '&paged=' . $_GET['paged'] : "";
-        $page = isset( $_GET['page'] ) ? '&page=' . $_GET['page'] : "";
-        $post = isset( $_GET['post'] ) ? '&post=' . $_GET['post'] : "";
-        $action = isset( $_GET['action'] ) ? '&action=' . $_GET['action'] : "";
-        $item = isset( $_GET['item'] ) ? '&item=' . $_GET['item'] : "";
+        $paged = isset( $_GET['paged'] ) ? '&paged=' . sanitize_text_field( $_GET['paged'] ) : "";
+        $page = isset( $_GET['page'] ) ? '&page=' . sanitize_text_field( $_GET['page'] ) : "";
+        $post = isset( $_GET['post'] ) ? '&post=' . sanitize_text_field( $_GET['post'] ) : "";
+        $action = isset( $_GET['action'] ) ? '&action=' . sanitize_text_field( $_GET['action'] ) : "";
+        $item = isset( $_GET['item'] ) ? '&item=' . sanitize_text_field( $_GET['item'] ) : "";
         $wpmmf_id = sprintf( "&wpmmf_attachment_id=%s", $post_id );
         $insert_file_qs = $insert_file ? "&wpmmf_file=1" : "";
 
         $url_path = sprintf( "?%s%s%s%s%s%s%s", $page, $item, $paged, $post, $action, $wpmmf_id, $insert_file_qs );
         $nonce_url = wp_nonce_url( $url_path, 'wpmmf_attachment_id', 'wpmmf_nonce' );
-        $output .= sprintf("<a href='%s' class='button button-primary button-small'>%s</a>", $nonce_url, __( $button_string, 'wp-media-metadata-fix' ) );
+        $output .= sprintf("<a href='%s' class='button button-primary button-small'>%s</a>", esc_url( $nonce_url ), __( $button_string, 'wp-media-metadata-fix' ) );
     }
 
 }
